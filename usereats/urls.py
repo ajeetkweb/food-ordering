@@ -20,10 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from rest_framework import routers
-from restaurants import views
+from restaurants import views as restaurant_views
+from articles import views as article_views
 
 router = routers.DefaultRouter()
-router.register('restaurants', views.RestaurantViewSet)
+router.register('restaurants', restaurant_views.RestaurantViewSet)
+router.register('articles', article_views.ArticlesViewSet)
 
 urlpatterns = [
     path('', include('frontend.urls')),
