@@ -13,6 +13,7 @@ const RestaurantDetails = ({restaurantId}) => {
         (async function getRestaurantDetails(restaurantId) {
             const result = await api.restaurants.getRestaurant(restaurantId);
             setRestaurantDetails(result);
+            console.log(result.articles)
         })(restaurantId);
     }, [])
 
@@ -20,7 +21,7 @@ const RestaurantDetails = ({restaurantId}) => {
         <div>
             <div>{restaurantDetails.name}</div>
             <div className={"article-list"}>
-                {restaurantDetails.articles.forEach(article => (<ArticleListItem {...article} key={article.pk}/>))}
+                {restaurantDetails.articles.map(article => (<ArticleListItem {...article} key={article.pk}/>))}
             </div>
         </div>
     )
