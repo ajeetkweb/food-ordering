@@ -2,6 +2,8 @@ import React, {useEffect, useState} from "react";
 import api from "../../api";
 
 import RestaurantListItem from "./RestaurantListItem";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
 
 const RestaurantList = () => {
     const [restaurantList, setRestaurantList] = useState([]);
@@ -14,11 +16,11 @@ const RestaurantList = () => {
     }, []);
 
     return (
-        <div className={"restaurant-list"}>
-            <ul>
+        <Container maxWidth="md">
+            <Grid container spacing={4}>
                 {restaurantList.map(restaurant => <RestaurantListItem key={restaurant.pk} {...restaurant} />)}
-            </ul>
-        </div>
+            </Grid>
+        </Container>
     )
 }
 
