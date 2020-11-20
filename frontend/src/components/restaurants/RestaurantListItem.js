@@ -14,7 +14,6 @@ const RestaurantListItem = ({pk, name, logo}) => {
         <Grid item key={pk} xs={12} sm={6} md={4}>
             <Card>
                 <CardMedia
-                    // className={classes.cardMedia}
                     image={logo}
                     title={name}
                 />
