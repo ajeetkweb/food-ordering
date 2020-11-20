@@ -7,5 +7,9 @@ export const restaurants = {
 
     getRestaurant(id) {
         return axios.get(`api/restaurants/${id}`).then((res) => res.data);
+    },
+
+    searchRestaurants(query) {
+        return axios.get(`api/restaurants/?search=${query}`).then((res) => res.data);
     }
 }

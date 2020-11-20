@@ -1,7 +1,7 @@
+from rest_framework import filters
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
-from rest_framework.decorators import action
 
 from .models import Restauraunt
 from .serializers import RestaurauntSerializer, RestaurantDetailsSerializer
@@ -16,7 +16,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owner == request.user
 
 
-class RestaurantViewSet(viewsets.ModelViewSet):
+class RestaurantApi(viewsets.ModelViewSet):
     """
     API viewset to read all Restaurants.
     """
@@ -24,6 +24,9 @@ class RestaurantViewSet(viewsets.ModelViewSet):
     serializer_class = RestaurauntSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

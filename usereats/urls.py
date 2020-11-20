@@ -21,16 +21,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from rest_framework import routers
-from restaurants import views as restaurant_views
-from articles import views as article_views
-# from orders import views as order_views
+from restaurants import apis as restaurant_api
+from articles import apis as articles_api
 
 from orders.urls import order_patterns
 
 router = routers.DefaultRouter()
-router.register('restaurants', restaurant_views.RestaurantViewSet)
-router.register('articles', article_views.ArticlesViewSet)
-# router.register('orders', order_views.OrderViewSet)
+router.register('restaurants', restaurant_api.RestaurantApi)
+router.register('articles', articles_api.ArticlesApi)
+
 
 urlpatterns = [
     path('', include('frontend.urls')),

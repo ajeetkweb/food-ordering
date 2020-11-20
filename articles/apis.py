@@ -14,7 +14,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owner == request.user
 
 
-class ArticlesViewSet(viewsets.ModelViewSet):
+class ArticlesApi(viewsets.ModelViewSet):
     """
     API viewset to read all Restaurants.
     """
