@@ -76,5 +76,5 @@ jobs:
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: usereats
-        cluster: default
+        cluster: Usereats
         wait-for-service-stability: true
