@@ -67,7 +67,7 @@ jobs:
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: task-definition.json
+        task-definition: .aws/task-definition.json
         container-name: usereats-app
         image: ${{ steps.build-image.outputs.image }}
 
@@ -75,6 +75,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: usereats-service
+        service: usereats
         cluster: default
         wait-for-service-stability: true
