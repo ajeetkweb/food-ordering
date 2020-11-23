@@ -18,10 +18,16 @@ def get_order_by_pk(*, pk_order: int) -> Order:
         .get(pk=pk_order)
 
 
-def get_order_article_by_order_and_article_pk(*, pk_order: int, pk_article: int) -> OrderArticle:
+def get_order_by_pk_for_user(*, pk_order: int, user: User) -> Order:
+    return Order \
+        .objects \
+        .get(pk=pk_order, user=user)
+
+
+def get_order_article_by_order_and_article_pk_for_user(*, pk_order: int, pk_article: int, user: User) -> OrderArticle:
     return OrderArticle \
         .objects \
-        .filter(order__pk=pk_order, article__pk=pk_article) \
+        .filter(order__pk=pk_order, article__pk=pk_article, order__user=user) \
         .first()
 
 

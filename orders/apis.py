@@ -55,6 +55,10 @@ class OrderCreateApi(APIView):
     def post(self, request):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        order_in_progress = get_in_progress_order(user=self.request.user)
+        if order_in_progress:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         order_create(user=request.user, **serializer.validated_data)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -68,9 +72,9 @@ class OrderInProgressApi(APIView):
     class OutputSerializer(serializers.ModelSerializer):
         articles = inline_serializer(many=True, fields={
             'article': inline_serializer(fields={
-                    'pk': serializers.IntegerField(),
-                    'name': serializers.CharField()
-                }),
+                'pk': serializers.IntegerField(),
+                'name': serializers.CharField()
+            }),
             'quantity': serializers.IntegerField(),
         })
 
@@ -89,6 +93,7 @@ class OrderAddOrderArticleApi(APIView):
     Add new article to order.
     """
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+
     class InputSerializer(serializers.Serializer):
         article = inline_serializer(fields={
             'pk': serializers.IntegerField(),
@@ -98,7 +103,9 @@ class OrderAddOrderArticleApi(APIView):
     def post(self, request, pk_order):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order_add_article(pk_order=pk_order, **serializer.validated_data)
+        order = order_add_article(pk_order=pk_order, user=request.user, **serializer.validated_data)
+        if not order:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -117,7 +124,10 @@ class OrderUpdateOrderArticleApi(APIView):
     def post(self, request, pk_order):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order_update_order_article(pk_order=pk_order, **serializer.validated_data)
+        order = order_update_order_article(
+            pk_order=pk_order, user=request.user, **serializer.validated_data)
+        if not order:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -125,7 +135,10 @@ class OrderCancelApi(APIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def post(self, request, pk_order):
-        order_update_status_by_user(pk_order=pk_order, status=1)
+        order = order_update_status_by_user(
+            pk_order=pk_order, status=1, user=request.user)
+        if not order:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -133,5 +146,8 @@ class OrderConfirmApi(APIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def post(self, request, pk_order):
-        order_update_status_by_user(pk_order=pk_order, status=2)
+        order = order_update_status_by_user(
+            pk_order=pk_order, status=2, user=request.user)
+        if not order:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
