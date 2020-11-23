@@ -169,6 +169,39 @@ class TestOrdersAPI(APITestCase):
         self.assertEqual(order.subtotal, old_subtotal + article.price)
         self.logout_user()
 
+    def test_add_article_to_existing_canceled_order(self):
+        order = mock_factories.OrderFactory(user=self.user, status=CANCELED)
+        self.login_user()
+        article = mock_factories.ArticleFactory.create()
+        payload = {
+            'article': {
+                'pk': article.pk,
+                'quantity': 1
+            }
+        }
+        response = self.client.post(
+            f"/api/orders/add-article/{order.pk}", data=payload, format='json')
+        order.refresh_from_db()
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.logout_user()
+
+    def test_add_article_to_other_users_order(self):
+        other_user = mock_factories.UserFactory.create()
+        other_users_order = mock_factories.OrderFactory(user=other_user, status=CANCELED)
+        self.login_user()
+        article = mock_factories.ArticleFactory.create()
+        payload = {
+            'article': {
+                'pk': article.pk,
+                'quantity': 1
+            }
+        }
+        response = self.client.post(
+            f"/api/orders/add-article/{other_users_order.pk}", data=payload, format='json')
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.logout_user()
+
+
     def test_add_article_to_not_existing_order(self):
         self.login_user()
         article = mock_factories.ArticleFactory.create()
@@ -245,5 +278,22 @@ class TestOrdersAPI(APITestCase):
         }
         response = self.client.post(
             f"/api/orders/update-article/{other_users_order.pk}", data=payload, format='json')
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.logout_user()
+
+    def test_update_article_on_existing_canceled_order(self):
+        self.login_user()
+        order_article = mock_factories.OrderArticleFactory.create()
+        order = mock_factories.OrderFactory(
+            user=self.user, articles=[order_article], status=CANCELED)
+        article = order_article.article
+        payload = {
+            'article': {
+                'pk': article.pk,
+                'quantity': order_article.quantity + 1
+            }
+        }
+        response = self.client.post(
+            f"/api/orders/update-article/{order.pk}", data=payload, format='json')
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.logout_user()

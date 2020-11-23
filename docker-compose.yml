@@ -1,0 +1,48 @@
+version: "3"
+services:
+  # redis:
+  #   container_name: notifications-redis
+  #   image: redis:5
+  #   ports:
+  #     - "63790:6379"
+
+  postgresql:
+    container_name: usereats-postgresql
+    image: postgres:12
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=usereats_dev
+    ports:
+      - "54320:5432"
+    volumes:
+      - usereatspgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: usereats-rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: rabbitcookie
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbitpass
+    ports:
+      - 56720:5672
+      - 15672:15672
+
+  app:
+    container_name: usereats-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - DATABASE_URL=psql://postgres:password@postgresql:5432/usereats_dev
+      - RABBITMQ_URL=amqp://rabbit:rabbitpass@rabitmq:5672
+    ports:
+      - "8020:8000"
+    volumes:
+      - ./.:/usr/src/app/
+      - ./run/dap.sock:/tmp/dap.sock
+
+volumes:
+  usereatspgdata:

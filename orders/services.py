@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from articles.models import Article
 from articles.selectors import get_article_by_pk
-from orders.models import Order, OrderArticle
+from orders.models import IN_PROGRESS, Order, OrderArticle
 from orders.selectors import get_order_article_by_order_and_article_pk_for_user, get_order_by_pk_for_user
 
 
@@ -24,7 +24,7 @@ def order_article_create(*, article: Article, quantity: int) -> OrderArticle:
 
 def order_add_article(*, pk_order: int, user: User, article: dict):
     try:
-        order = get_order_by_pk_for_user(pk_order=pk_order, user=user)
+        order = get_order_by_pk_for_user(pk_order=pk_order, user=user, status=IN_PROGRESS)
         if order.articles.filter(article_id=article['pk']).exists():
             return order_update_order_article(pk_order=pk_order, user=user, article=article)
         db_article = get_article_by_pk(pk_article=article['pk'])
@@ -39,10 +39,11 @@ def order_add_article(*, pk_order: int, user: User, article: dict):
 
 def order_update_order_article(*, pk_order: int, user: User, article: dict) -> Optional[OrderArticle]:
     try:
-        order_article = get_order_article_by_order_and_article_pk_for_user(pk_order=pk_order, pk_article=article['pk'], user=user)
+        order = get_order_by_pk_for_user(pk_order=pk_order, user=user, status=IN_PROGRESS)
+        order_article = get_order_article_by_order_and_article_pk_for_user(pk_order=order.pk, pk_article=article['pk'], user=user)
         order_article.quantity = article['quantity']
         order_article.save()
-    except OrderArticle.DoesNotExist:
+    except (OrderArticle.DoesNotExist, Order.DoesNotExist):
         order_article = None
     finally:
         return order_article
