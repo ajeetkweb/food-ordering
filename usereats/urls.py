@@ -25,6 +25,16 @@ from restaurants import apis as restaurant_api
 from articles import apis as articles_api
 
 from orders.urls import order_patterns
+from rest_framework import status
+from rest_framework.response import Response
+
+from rest_framework.generics import GenericAPIView
+
+
+class HealthCheckApi(GenericAPIView):
+    def get(self, request):
+        return Response(status=status.HTTP_200_OK)
+
 
 router = routers.DefaultRouter()
 router.register('restaurants', restaurant_api.RestaurantApi)
@@ -35,6 +45,7 @@ urlpatterns = [
     path('', include('frontend.urls')),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/health/', HealthCheckApi.as_view(), name='health-api'),
     path('api/orders/', include((order_patterns, 'orders'))),
     path('api-auth/', include('rest_framework.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
